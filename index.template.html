@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CFA Practice Exam</title>
+  <style>
+    :root {
+      --cfa-navy: #002d5b;
+      --cfa-navy-dark: #001a36;
+      --cfa-blue: #0056a4;
+      --cfa-blue-light: #e8f0f8;
+      --bg: #ececec;
+      --surface: #ffffff;
+      --border: #c8c8c8;
+      --border-dark: #999;
+      --text: #1a1a1a;
+      --muted: #555;
+      --success: #1a7f37;
+      --danger: #b91c1c;
+      --warning: #b45309;
+      --flag: #7c3aed;
+      --nav-current: #0056a4;
+      --nav-answered: #002d5b;
+      --nav-unanswered: #fff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    /* ── Setup & results (portal-adjacent light theme) ── */
+    .portal-wrap { max-width: 960px; margin: 0 auto; padding: 0 16px 48px; }
+    .portal-header {
+      background: var(--cfa-navy);
+      color: #fff;
+      padding: 18px 24px;
+      margin: 0 -16px 24px;
+    }
+    .portal-header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.02em; }
+    .portal-header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--cfa-navy);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .mode-toggle { display: flex; gap: 10px; flex-wrap: wrap; }
+    .mode-btn {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      background: #fafafa;
+      cursor: pointer;
+      text-align: left;
+    }
+    .mode-btn:hover { border-color: var(--cfa-blue); }
+    .mode-btn.active { border-color: var(--cfa-navy); background: var(--cfa-blue-light); }
+    .mode-btn strong { display: block; font-size: 0.95rem; margin-bottom: 2px; color: var(--cfa-navy); }
+    .mode-btn span { font-size: 0.8rem; color: var(--muted); }
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+    }
+    .topic-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .topic-chip input { accent-color: var(--cfa-navy); }
+    .topic-chip .count { margin-left: auto; color: var(--muted); font-size: 0.78rem; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+    label.field { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 20px;
+      border: 1px solid var(--border-dark);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f0f0f0;
+      color: var(--text);
+    }
+    .btn:hover { background: #e4e4e4; }
+    .btn-primary { background: var(--cfa-navy); color: #fff; border-color: var(--cfa-navy-dark); }
+    .btn-primary:hover { background: var(--cfa-blue); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger { background: #fff; color: var(--danger); border-color: var(--danger); }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .select-all-row { margin-bottom: 10px; }
+    .select-all-row button {
+      background: none; border: none; color: var(--cfa-blue);
+      cursor: pointer; font-size: 0.85rem; text-decoration: underline;
+    }
+    .hint { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; }
+
+    /* Results */
+    .score-ring { text-align: center; padding: 20px; }
+    .score-big { font-size: 3rem; font-weight: 800; color: var(--cfa-navy); line-height: 1; }
+    .score-label { color: var(--muted); margin-top: 6px; }
+    .topic-results { margin-top: 16px; }
+    .topic-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .topic-name { flex: 0 0 180px; font-size: 0.85rem; }
+    @media (max-width: 560px) { .topic-name { flex: 0 0 120px; } }
+    .topic-bar-wrap { flex: 1; height: 8px; background: #ddd; overflow: hidden; }
+    .topic-bar { height: 100%; }
+    .topic-pct { width: 44px; text-align: right; font-size: 0.85rem; font-weight: 700; }
+    .weak-tag {
+      display: inline-block;
+      background: #fee2e2;
+      color: var(--danger);
+      font-size: 0.68rem;
+      padding: 1px 6px;
+      margin-left: 4px;
+    }
+    .review-list { margin-top: 16px; max-height: 480px; overflow-y: auto; }
+    .review-item {
+      padding: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      background: #fafafa;
+      font-size: 0.88rem;
+    }
+    .review-item.correct-item { border-left: 4px solid var(--success); }
+    .review-item.wrong-item { border-left: 4px solid var(--danger); }
+    .review-item h4 { font-size: 0.85rem; margin-bottom: 6px; color: var(--cfa-navy); }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .history-table th, .history-table td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table th { color: var(--muted); font-weight: 600; background: #f5f5f5; }
+    .history-table tbody tr.clickable { cursor: pointer; }
+    .history-table tbody tr.clickable:hover { background: var(--cfa-blue-light); }
+    .history-hint { margin-top: 8px; margin-bottom: 0; }
+    .history-scroll { overflow-x: auto; }
+
+    /* ── Prometric-style exam shell ── */
+    .exam-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f4f4f4;
+    }
+    .exam-header {
+      background: var(--cfa-navy);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 3px solid #004080;
+    }
+    .exam-brand { font-size: 0.95rem; font-weight: 700; }
+    .exam-brand small { display: block; font-weight: 400; font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+    .exam-header-meta { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .exam-mode-badge {
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.15);
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .exam-timer-block { text-align: right; }
+    .exam-timer-label { display: block; font-size: 0.68rem; opacity: 0.85; text-transform: uppercase; }
+    .timer { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .timer.warning { color: #fbbf24; }
+
+    .time-warning-banner {
+      background: #fef3c7;
+      border-bottom: 1px solid var(--warning);
+      color: #92400e;
+      padding: 8px 20px;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .time-warning-banner.show { display: block; }
+
+    .exam-body {
+      flex: 1;
+      display: flex;
+      gap: 0;
+      min-height: 0;
+    }
+    .exam-main {
+      flex: 1;
+      padding: 20px 24px 24px;
+      overflow-y: auto;
+      background: #fff;
+      border-right: 1px solid var(--border);
+    }
+    .exam-q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--cfa-navy);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .exam-q-header strong { color: var(--cfa-navy); font-size: 1rem; }
+    .exam-topic { font-size: 0.8rem; color: var(--muted); max-width: 55%; text-align: right; }
+    .q-text {
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+      line-height: 1.65;
+    }
+    .options-list { display: flex; flex-direction: column; gap: 0; }
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      margin-bottom: 2px;
+    }
+    .option-row:hover:not(.locked) { background: #f0f6fc; }
+    .option-row.selected { background: var(--cfa-blue-light); border-color: #b8d4f0; }
+    .option-row.correct { background: #ecfdf5; border-color: #86efac; }
+    .option-row.wrong { background: #fef2f2; border-color: #fca5a5; }
+    .option-row.locked { cursor: default; }
+    .option-row input[type="radio"] {
+      margin-top: 3px;
+      accent-color: var(--cfa-navy);
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .option-label { font-weight: 700; min-width: 22px; color: var(--cfa-navy); }
+    .option-text { flex: 1; font-size: 0.93rem; }
+
+    .feedback-box {
+      margin-top: 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--cfa-blue);
+      background: #f8fafc;
+      display: none;
+    }
+    .feedback-box.show { display: block; }
+    .feedback-box.correct-fb { border-left-color: var(--success); }
+    .feedback-box.wrong-fb { border-left-color: var(--danger); }
+    .feedback-box h4 { margin-bottom: 6px; font-size: 0.9rem; }
+    .feedback-box p { font-size: 0.88rem; color: var(--muted); white-space: pre-wrap; }
+
+    /* Navigator panel */
+    .exam-navigator {
+      width: 220px;
+      flex-shrink: 0;
+      background: #f0f0f0;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 14px 12px;
+    }
+    .exam-navigator h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--cfa-navy);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    .nav-legend {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      line-height: 1.8;
+    }
+    .nav-legend span { display: inline-flex; align-items: center; gap: 5px; margin-right: 8px; }
+    .nav-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border-dark);
+      vertical-align: middle;
+    }
+    .nav-dot.current { background: var(--nav-current); border-color: var(--nav-current); }
+    .nav-dot.answered { background: var(--nav-answered); border-color: var(--nav-answered); }
+    .nav-dot.flagged { background: var(--flag); border-color: var(--flag); }
+    .nav-dot.unanswered { background: var(--nav-unanswered); }
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      overflow-y: auto;
+      flex: 1;
+      max-height: calc(100vh - 280px);
+    }
+    .nav-cell {
+      aspect-ratio: 1;
+      min-height: 32px;
+      border: 1px solid var(--border-dark);
+      background: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+    .nav-cell:hover { border-color: var(--cfa-blue); background: var(--cfa-blue-light); }
+    .nav-cell.current { background: var(--nav-current); color: #fff; border-color: var(--nav-current); }
+    .nav-cell.answered { background: var(--nav-answered); color: #fff; border-color: var(--nav-answered); }
+    .nav-cell.flagged { background: var(--flag); color: #fff; border-color: var(--flag); }
+    .nav-cell.flagged.answered { background: linear-gradient(135deg, var(--flag) 50%, var(--nav-answered) 50%); }
+    .nav-summary {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .exam-footer {
+      background: #ddd;
+      border-top: 1px solid var(--border-dark);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .exam-footer .btn { min-width: 100px; }
+    .exam-footer-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-flag { background: #fff; border-color: var(--flag); color: var(--flag); }
+    .btn-flag.active { background: var(--flag); color: #fff; }
+
+    .nav-toggle {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      right: 16px;
+      z-index: 20;
+      background: var(--cfa-navy);
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    @media (max-width: 768px) {
+      .exam-navigator {
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 30;
+        transform: translateX(100%);
+        transition: transform 0.2s;
+        box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+      }
+      .exam-navigator.open { transform: translateX(0); }
+      .exam-main { border-right: none; }
+      .nav-toggle { display: block; }
+      .exam-topic { max-width: 100%; text-align: left; }
+    }
+
+    .hidden { display: none !important; }
+    .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 8px; }
+
+    .quiz-type-toggle { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .quiz-type-btn {
+      flex: 1;
+      min-width: 220px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      background: #fafafa;
+      cursor: pointer;
+      text-align: left;
+    }
+    .quiz-type-btn:hover { border-color: var(--cfa-blue); }
+    .quiz-type-btn.active { border-color: var(--cfa-navy); background: var(--cfa-blue-light); }
+    .quiz-type-btn strong { display: block; color: var(--cfa-navy); margin-bottom: 4px; }
+    .quiz-type-btn span { font-size: 0.8rem; color: var(--muted); }
+    .mock-spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 12px;
+    }
+    .mock-spec-table th, .mock-spec-table td {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    .mock-spec-table th { background: #f5f5f5; color: var(--cfa-navy); font-weight: 700; }
+    .mock-spec-table tfoot td { font-weight: 700; background: var(--cfa-blue-light); }
+    .session-pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      margin-right: 8px;
+    }
+    .break-timer { font-size: 2rem; font-weight: 700; color: var(--cfa-navy); margin: 16px 0; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <!-- SETUP -->
+  <div id="screen-setup">
+    <div class="portal-header">
+      <h1>CFA Program — Practice Examination</h1>
+      <p id="header-subtitle">Premium Pack Question Bank</p>
+    </div>
+    <div class="portal-wrap">
+      <div class="card">
+        <h2>Exam Format</h2>
+        <div class="quiz-type-toggle">
+          <div class="quiz-type-btn active" data-quiz-type="custom" id="quiz-type-custom">
+            <strong>Custom Session</strong>
+            <span>Pick topics, item count, and time limit</span>
+          </div>
+          <div class="quiz-type-btn" data-quiz-type="cfa-l1" id="quiz-type-l1">
+            <strong>Level I Full Mock</strong>
+            <span>180 items · 2 sessions × 2h 15m · official topic weights</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card hidden" id="mock-spec-card">
+        <h2>Level I Mock — Exam Parameters</h2>
+        <p class="hint" style="margin-top:0;">
+          Mirrors the computer-based Level I format: two sessions of 90 multiple-choice items,
+          2 hours 15 minutes each, with an optional 30-minute break between sessions.
+          Items are drawn randomly from your bank using CFA topic weight targets.
+          Answers and explanations are shown only after Session 2 ends.
+        </p>
+        <table class="mock-spec-table" id="mock-spec-table"></table>
+      </div>
+
+      <div id="custom-options">
+      <div class="card">
+        <h2>Session Type</h2>
+        <div class="mode-toggle">
+          <div class="mode-btn active" data-mode="exam" id="mode-exam">
+            <strong>Exam Mode</strong>
+            <span>Simulates test-day conditions — answers revealed at end</span>
+          </div>
+          <div class="mode-btn" data-mode="practice" id="mode-practice">
+            <strong>Practice Mode</strong>
+            <span>Instant feedback and explanations after each item</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Content Selection</h2>
+        <div class="select-all-row">
+          <button type="button" id="btn-select-all">Select all topics</button>
+          &nbsp;·&nbsp;
+          <button type="button" id="btn-clear-all">Clear all</button>
+        </div>
+        <div class="topics-grid" id="topics-grid"></div>
+        <p class="error-msg hidden" id="topic-error">Select at least one topic.</p>
+      </div>
+
+      <div class="card">
+        <h2>Session Settings</h2>
+        <div class="form-row">
+          <div>
+            <label class="field" for="num-questions">Number of items</label>
+            <input type="number" id="num-questions" min="1" value="20">
+          </div>
+          <div>
+            <label class="field" for="time-limit">Time limit (minutes)</label>
+            <input type="number" id="time-limit" min="1" value="60">
+          </div>
+        </div>
+        <p class="hint">
+          When time expires, a warning appears and the session continues. Per-item time is tracked in your results.
+        </p>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-start">Begin Session</button>
+        </div>
+      </div>
+      </div>
+
+      <div class="btn-row" id="mock-start-row" style="display:none;margin-bottom:16px;">
+        <button class="btn btn-primary" id="btn-start-l1">Begin Level I Mock — Session 1</button>
+      </div>
+
+      <div class="card" id="history-card">
+        <h2>Session History</h2>
+        <div id="history-empty" class="hint" style="margin:0;">No sessions yet.</div>
+        <p class="hint history-hint hidden" id="history-hint">Click a row to open the full item review.</p>
+        <div class="history-scroll">
+          <table class="history-table hidden" id="history-table">
+            <thead>
+              <tr><th>Date</th><th>Mode</th><th>Score</th><th>Topics</th><th>Time</th></tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAM (Prometric-style) -->
+  <div id="screen-quiz" class="hidden exam-shell">
+    <header class="exam-header">
+      <div class="exam-brand">
+        CFA Institute
+        <small>Computer-Based Testing — Practice Session</small>
+      </div>
+      <div class="exam-header-meta">
+        <span class="exam-mode-badge hidden" id="session-label"></span>
+        <span class="exam-mode-badge" id="mode-label">Exam Mode</span>
+        <div class="exam-timer-block">
+          <span class="exam-timer-label">Time Remaining</span>
+          <div class="timer" id="timer">60:00</div>
+        </div>
+      </div>
+    </header>
+    <div class="time-warning-banner" id="time-warning">
+      Time limit exceeded — you may continue. Select <strong>End Exam</strong> when finished.
+    </div>
+    <div class="exam-body">
+      <main class="exam-main">
+        <div class="exam-q-header">
+          <span>Item <strong id="q-current">1</strong> of <strong id="q-total">20</strong></span>
+          <span class="exam-topic" id="q-topic"></span>
+        </div>
+        <div class="q-text" id="q-text"></div>
+        <div class="options-list" id="q-options"></div>
+        <div class="feedback-box" id="feedback-box">
+          <h4 id="feedback-title"></h4>
+          <p id="feedback-text"></p>
+        </div>
+      </main>
+      <aside class="exam-navigator" id="exam-navigator">
+        <h3>Navigator</h3>
+        <div class="nav-legend">
+          <span><i class="nav-dot current"></i> Current</span>
+          <span><i class="nav-dot answered"></i> Answered</span>
+          <span><i class="nav-dot flagged"></i> Flagged</span>
+          <span><i class="nav-dot unanswered"></i> Unanswered</span>
+        </div>
+        <div class="nav-grid" id="nav-grid"></div>
+        <div class="nav-summary" id="nav-summary"></div>
+      </aside>
+    </div>
+    <footer class="exam-footer">
+      <button class="btn btn-flag" id="btn-flag" type="button">Flag for Review</button>
+      <div class="exam-footer-nav">
+        <button class="btn" id="btn-prev" type="button">&lt; Previous</button>
+        <button class="btn btn-primary" id="btn-next" type="button">Next &gt;</button>
+        <button class="btn btn-danger" id="btn-submit" type="button">End Exam</button>
+      </div>
+    </footer>
+    <button class="nav-toggle" id="nav-toggle" type="button">Navigator</button>
+  </div>
+
+  <!-- BREAK (between L1 sessions) -->
+  <div id="screen-break" class="hidden">
+    <div class="portal-header">
+      <h1>Level I Mock — Optional Break</h1>
+      <p>Session 1 complete</p>
+    </div>
+    <div class="portal-wrap">
+      <div class="card">
+        <h2>Session 1 Submitted</h2>
+        <p class="hint" id="break-message">
+          You may take an optional break of up to 30 minutes before Session 2.
+          Scores are not shown until both sessions are complete.
+        </p>
+        <p style="font-size:0.88rem;margin-bottom:8px;">Break elapsed</p>
+        <div class="break-timer" id="break-timer">0:00</div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-start-session-2">Begin Session 2</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="hidden">
+    <div class="portal-header">
+      <h1>Session Complete</h1>
+      <p>Review your performance below</p>
+    </div>
+    <div class="portal-wrap">
+      <div class="card score-ring">
+        <div class="score-big" id="result-score">0%</div>
+        <div class="score-label" id="result-summary">0 / 0 correct</div>
+        <p class="hint" style="margin-top:10px;margin-bottom:0;" id="result-time-info"></p>
+      </div>
+
+      <div class="card">
+        <h2>Performance by Topic</h2>
+        <div class="topic-results" id="topic-results"></div>
+        <div id="weak-topics" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="card">
+        <h2>Item Review</h2>
+        <div class="review-list" id="review-list"></div>
+      </div>
+
+      <div class="btn-row" style="justify-content:center;margin-top:8px;">
+        <button class="btn btn-primary" id="btn-new-quiz">New Session</button>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h2>Session History</h2>
+        <div id="history-empty-results" class="hint hidden">No sessions yet.</div>
+        <p class="hint history-hint hidden" id="history-hint-results">Click a row to open the full item review.</p>
+        <div class="history-scroll">
+          <table class="history-table hidden" id="history-table-results">
+            <thead>
+              <tr><th>Date</th><th>Mode</th><th>Score</th><th>Topics</th><th>Time</th></tr>
+            </thead>
+            <tbody id="history-body-results"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = /*__QUESTIONS_DATA__*/[];
+    const STORAGE_KEY = 'cfa_quiz_history_v1';
+    const WEAK_THRESHOLD = 70;
+
+    /** CFA Level I CBT — topic weights & session split (180 items, 135 min each) */
+    const CFA_LEVEL_I = {
+      totalQuestions: 180,
+      sessionMinutes: 135,
+      optionalBreakMinutes: 30,
+      sessions: [
+        {
+          label: 'Session 1',
+          topics: 'Ethics · Quant · Economics · FSA · Corporate Issuers',
+          distribution: {
+            'Ethics': 28,
+            'Quantitative Methods': 14,
+            'Economics': 14,
+            'Financial Statement Analysis': 22,
+            'Corporate Issuers': 12,
+          },
+        },
+        {
+          label: 'Session 2',
+          topics: 'Equity · Fixed Income · Derivatives · Alt Inv · Portfolio Mgmt',
+          distribution: {
+            'Equity': 23,
+            'Fixed Income': 23,
+            'Derivatives': 11,
+            'Alternative Investments': 15,
+            'Portfolio Management': 18,
+          },
+        },
+      ],
+    };
+
+    const state = {
+      quizType: 'custom',
+      mode: 'exam',
+      selectedTopics: [],
+      questions: [],
+      currentIndex: 0,
+      answers: {},
+      flagged: {},
+      questionTimes: {},
+      questionStart: null,
+      timeLimitSec: 3600,
+      timeRemaining: 3600,
+      timerExpired: false,
+      timerInterval: null,
+      sessionStart: null,
+      cfaSessionIndex: 0,
+      cfaSessions: [],
+      cfaSessionSnapshots: [],
+      breakStart: null,
+      breakInterval: null,
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function getTopics() {
+      const map = {};
+      QUESTIONS.forEach(q => { map[q.topic] = (map[q.topic] || 0) + 1; });
+      return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+    }
+
+    function renderTopics() {
+      const grid = $('topics-grid');
+      grid.innerHTML = '';
+      getTopics().forEach(([topic, count]) => {
+        const label = document.createElement('label');
+        label.className = 'topic-chip';
+        label.innerHTML = `
+          <input type="checkbox" value="${topic}" checked>
+          <span>${topic}</span>
+          <span class="count">${count}</span>
+        `;
+        grid.appendChild(label);
+      });
+      $('header-subtitle').textContent =
+        `${QUESTIONS.length} items · ${getTopics().length} topic areas`;
+    }
+
+    function getSelectedTopics() {
+      return [...document.querySelectorAll('#topics-grid input:checked')].map(c => c.value);
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function formatTime(sec) {
+      sec = Math.max(0, Math.floor(sec));
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function formatDuration(sec) {
+      sec = Math.floor(sec);
+      if (sec < 60) return `${sec}s`;
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return s ? `${m}m ${s}s` : `${m}m`;
+    }
+
+    function getQuizType() {
+      return document.querySelector('.quiz-type-btn.active')?.dataset.quizType || 'custom';
+    }
+
+    function renderMockSpecTable() {
+      const table = $('mock-spec-table');
+      let bodyRows = '';
+      let total = 0;
+      CFA_LEVEL_I.sessions.forEach(sess => {
+        bodyRows += `<tr><th colspan="3">${sess.label} — ${sess.topics} · ${CFA_LEVEL_I.sessionMinutes} min · 90 items</th></tr>`;
+        Object.entries(sess.distribution).forEach(([topic, count]) => {
+          const pct = ((count / CFA_LEVEL_I.totalQuestions) * 100).toFixed(1);
+          bodyRows += `<tr><td>${topic}</td><td>${count}</td><td>${pct}%</td></tr>`;
+          total += count;
+        });
+      });
+      table.innerHTML = `
+        <thead><tr><th>Topic</th><th>Items</th><th>Weight</th></tr></thead>
+        <tbody>${bodyRows}</tbody>
+        <tfoot><tr><td>Total</td><td>${total}</td><td>100%</td></tr></tfoot>`;
+    }
+
+    function updateSetupUI() {
+      const isL1 = getQuizType() === 'cfa-l1';
+      $('mock-spec-card').classList.toggle('hidden', !isL1);
+      $('custom-options').classList.toggle('hidden', isL1);
+      $('mock-start-row').style.display = isL1 ? 'flex' : 'none';
+      if (isL1) {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        $('mode-exam').classList.add('active');
+      }
+    }
+
+    function snapshotCurrentSession() {
+      return {
+        questions: [...state.questions],
+        answers: { ...state.answers },
+        flagged: { ...state.flagged },
+        questionTimes: { ...state.questionTimes },
+        timeUsedSec: Math.floor((Date.now() - state.sessionStart) / 1000),
+        timerExpired: state.timerExpired,
+      };
+    }
+
+    function showBreakScreen() {
+      $('screen-quiz').classList.add('hidden');
+      $('screen-break').classList.remove('hidden');
+      state.breakStart = Date.now();
+      clearInterval(state.breakInterval);
+      updateBreakTimer();
+      state.breakInterval = setInterval(updateBreakTimer, 1000);
+    }
+
+    function updateBreakTimer() {
+      const elapsed = Math.floor((Date.now() - state.breakStart) / 1000);
+      $('break-timer').textContent = formatTime(elapsed);
+      const maxBreak = CFA_LEVEL_I.optionalBreakMinutes * 60;
+      if (elapsed >= maxBreak) {
+        $('break-message').textContent =
+          'Maximum optional break time (30 minutes) has elapsed. Begin Session 2 when ready.';
+      }
+    }
+
+    function startCfaSession2() {
+      clearInterval(state.breakInterval);
+      state.cfaSessionIndex = 1;
+      state.questions = state.cfaSessions[1];
+      state.currentIndex = 0;
+      state.answers = {};
+      state.flagged = {};
+      state.questionTimes = {};
+      state.timeLimitSec = CFA_LEVEL_I.sessionMinutes * 60;
+      state.timeRemaining = state.timeLimitSec;
+      state.timerExpired = false;
+      state.sessionStart = Date.now();
+      $('q-total').textContent = state.questions.length;
+      enterQuizScreen();
+    }
+
+    function combineCfaL1Results() {
+      const results = [];
+      state.cfaSessionSnapshots.forEach(snap => {
+        snap.questions.forEach((q, i) => {
+          results.push({
+            ...q,
+            userAnswer: snap.answers[i] ?? null,
+            correct: snap.answers[i] === q.answer,
+            flagged: !!snap.flagged[i],
+            timeSec: snap.questionTimes[i] || 0,
+            cfaSession: snap.sessionLabel,
+          });
+        });
+      });
+      return results;
+    }
+
+    function sampleTopicQuestions(topic, count) {
+      const pool = shuffle(QUESTIONS.filter(q => q.topic === topic));
+      return pool.slice(0, Math.min(count, pool.length));
+    }
+
+    function buildCfaL1Sessions() {
+      const warnings = [];
+      const sessions = CFA_LEVEL_I.sessions.map(sess => {
+        let items = [];
+        Object.entries(sess.distribution).forEach(([topic, count]) => {
+          const picked = sampleTopicQuestions(topic, count);
+          if (picked.length < count) {
+            warnings.push(`${topic}: only ${picked.length}/${count} in bank`);
+          }
+          items.push(...picked);
+        });
+        return shuffle(items);
+      });
+      if (warnings.length) {
+        console.warn('L1 mock bank gaps:', warnings);
+      }
+      return sessions;
+    }
+
+    function updateExamChrome() {
+      const isL1 = state.quizType === 'cfa-l1';
+      const sessLabel = $('session-label');
+      if (isL1) {
+        sessLabel.classList.remove('hidden');
+        sessLabel.textContent = CFA_LEVEL_I.sessions[state.cfaSessionIndex].label;
+        $('mode-label').textContent = 'Level I Mock';
+        $('btn-submit').textContent = state.cfaSessionIndex === 0 ? 'End Session 1' : 'End Session 2';
+      } else {
+        sessLabel.classList.add('hidden');
+        $('mode-label').textContent = state.mode === 'exam' ? 'Exam Mode' : 'Practice Mode';
+        $('btn-submit').textContent = 'End Exam';
+      }
+    }
+
+    function enterQuizScreen() {
+      $('screen-setup').classList.add('hidden');
+      $('screen-break').classList.add('hidden');
+      $('screen-results').classList.add('hidden');
+      $('screen-quiz').classList.remove('hidden');
+      $('time-warning').classList.remove('show');
+      $('exam-navigator').classList.remove('open');
+      updateExamChrome();
+      buildNavigator();
+      startTimer();
+      showQuestion(0);
+    }
+
+    function startCustomQuiz() {
+      const topics = getSelectedTopics();
+      if (!topics.length) {
+        $('topic-error').classList.remove('hidden');
+        return;
+      }
+      $('topic-error').classList.add('hidden');
+
+      const pool = QUESTIONS.filter(q => topics.includes(q.topic));
+      const numQ = Math.min(parseInt($('num-questions').value, 10) || 20, pool.length);
+      if (!pool.length) {
+        alert('No questions available for selected topics.');
+        return;
+      }
+
+      state.quizType = 'custom';
+      state.mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'exam';
+      state.selectedTopics = topics;
+      state.questions = shuffle(pool).slice(0, numQ);
+      state.currentIndex = 0;
+      state.answers = {};
+      state.flagged = {};
+      state.questionTimes = {};
+      state.timeLimitSec = (parseInt($('time-limit').value, 10) || 60) * 60;
+      state.timeRemaining = state.timeLimitSec;
+      state.timerExpired = false;
+      state.sessionStart = Date.now();
+      state.cfaSessionIndex = 0;
+      state.cfaSessions = [];
+      state.cfaSessionSnapshots = [];
+
+      $('num-questions').max = pool.length;
+      $('q-total').textContent = state.questions.length;
+      enterQuizScreen();
+    }
+
+    function startCfaL1Mock() {
+      state.quizType = 'cfa-l1';
+      state.mode = 'exam';
+      state.cfaSessionIndex = 0;
+      state.cfaSessions = buildCfaL1Sessions();
+      state.cfaSessionSnapshots = [];
+      state.selectedTopics = getTopics().map(([t]) => t);
+      state.questions = state.cfaSessions[0];
+      state.currentIndex = 0;
+      state.answers = {};
+      state.flagged = {};
+      state.questionTimes = {};
+      state.timeLimitSec = CFA_LEVEL_I.sessionMinutes * 60;
+      state.timeRemaining = state.timeLimitSec;
+      state.timerExpired = false;
+      state.sessionStart = Date.now();
+
+      const totalPicked = state.cfaSessions[0].length + state.cfaSessions[1].length;
+      if (totalPicked < CFA_LEVEL_I.totalQuestions) {
+        if (!confirm(
+          `Warning: only ${totalPicked} items available in the bank (need ${CFA_LEVEL_I.totalQuestions}). Continue anyway?`
+        )) return;
+      }
+
+      $('q-total').textContent = state.questions.length;
+      enterQuizScreen();
+    }
+
+    function startQuiz() {
+      if (getQuizType() === 'cfa-l1') startCfaL1Mock();
+      else startCustomQuiz();
+    }
+
+    function updateTimeWarning() {
+      const el = $('time-warning');
+      if (state.quizType === 'cfa-l1') {
+        const n = state.cfaSessionIndex + 1;
+        el.innerHTML = `Time limit exceeded for Session ${n} — you may continue. Select <strong>End Session ${n}</strong> when finished.`;
+      } else {
+        el.innerHTML = 'Time limit exceeded — you may continue. Select <strong>End Exam</strong> when finished.';
+      }
+    }
+
+    function startTimer() {
+      clearInterval(state.timerInterval);
+      updateTimerDisplay();
+      state.timerInterval = setInterval(() => {
+        if (!state.timerExpired) {
+          state.timeRemaining--;
+          if (state.timeRemaining <= 0) {
+            state.timerExpired = true;
+            updateTimeWarning();
+            $('time-warning').classList.add('show');
+          }
+        }
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const el = $('timer');
+      if (state.timerExpired) {
+        const over = Math.floor((Date.now() - state.sessionStart) / 1000) - state.timeLimitSec;
+        el.textContent = '+' + formatTime(over);
+        el.classList.add('warning');
+      } else {
+        el.textContent = formatTime(state.timeRemaining);
+        el.classList.toggle('warning', state.timeRemaining <= 300);
+      }
+    }
+
+    function recordQuestionTime() {
+      if (state.questionStart != null) {
+        const idx = state.currentIndex;
+        const elapsed = (Date.now() - state.questionStart) / 1000;
+        state.questionTimes[idx] = (state.questionTimes[idx] || 0) + elapsed;
+      }
+    }
+
+    function buildNavigator() {
+      const grid = $('nav-grid');
+      grid.innerHTML = '';
+      state.questions.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'nav-cell';
+        btn.textContent = i + 1;
+        btn.title = `Item ${i + 1}`;
+        btn.onclick = () => {
+          showQuestion(i);
+          $('exam-navigator').classList.remove('open');
+        };
+        grid.appendChild(btn);
+      });
+      updateNavigator();
+    }
+
+    function updateNavigator() {
+      const cells = $('nav-grid').querySelectorAll('.nav-cell');
+      let answered = 0, flagged = 0, unanswered = 0;
+      cells.forEach((cell, i) => {
+        cell.className = 'nav-cell';
+        const isAnswered = state.answers[i] != null;
+        const isFlagged = !!state.flagged[i];
+        const isCurrent = i === state.currentIndex;
+        if (isAnswered) answered++;
+        else unanswered++;
+        if (isFlagged) flagged++;
+        if (isCurrent) cell.classList.add('current');
+        if (isFlagged) cell.classList.add('flagged');
+        if (isAnswered && !isCurrent) cell.classList.add('answered');
+        if (isCurrent && isAnswered) {
+          cell.classList.remove('answered');
+          cell.classList.add('current');
+        }
+      });
+      $('nav-summary').innerHTML =
+        `<strong>${answered}</strong> answered · ` +
+        `<strong>${unanswered}</strong> unanswered · ` +
+        `<strong>${flagged}</strong> flagged`;
+    }
+
+    function updateFlagButton() {
+      const btn = $('btn-flag');
+      const on = !!state.flagged[state.currentIndex];
+      btn.classList.toggle('active', on);
+      btn.textContent = on ? 'Unflag Item' : 'Flag for Review';
+    }
+
+    function showQuestion(index) {
+      recordQuestionTime();
+      state.currentIndex = index;
+      state.questionStart = Date.now();
+
+      const q = state.questions[index];
+      $('q-current').textContent = index + 1;
+      $('q-topic').textContent = q.topic + (q.number ? ` · Bank #${q.number}` : '');
+      $('q-text').textContent = q.question;
+
+      const optsEl = $('q-options');
+      optsEl.innerHTML = '';
+      const selected = state.answers[index];
+      const answered = selected != null;
+      const showFeedback = state.mode === 'practice' && answered;
+      const groupName = 'item-answer';
+
+      ['A', 'B', 'C'].forEach(letter => {
+        if (!q.options[letter]) return;
+        const label = document.createElement('label');
+        label.className = 'option-row';
+        if (selected === letter) label.classList.add('selected');
+        if (showFeedback) {
+          label.classList.add('locked');
+          if (letter === q.answer) label.classList.add('correct');
+          else if (selected === letter) label.classList.add('wrong');
+        }
+        label.innerHTML = `
+          <input type="radio" name="${groupName}" value="${letter}" ${selected === letter ? 'checked' : ''}>
+          <span class="option-label">${letter}.</span>
+          <span class="option-text">${escapeHtml(q.options[letter])}</span>
+        `;
+        if (!showFeedback) {
+          label.querySelector('input').onchange = () => selectOption(letter);
+          label.onclick = (e) => {
+            if (e.target.tagName !== 'INPUT') {
+              label.querySelector('input').checked = true;
+              selectOption(letter);
+            }
+          };
+        } else {
+          label.querySelector('input').disabled = true;
+        }
+        optsEl.appendChild(label);
+      });
+
+      const fb = $('feedback-box');
+      if (showFeedback) {
+        const correct = selected === q.answer;
+        fb.classList.add('show');
+        fb.classList.toggle('correct-fb', correct);
+        fb.classList.toggle('wrong-fb', !correct);
+        $('feedback-title').textContent = correct ? 'Correct' : `Incorrect — Correct answer: ${q.answer}`;
+        $('feedback-text').textContent = q.explanation || '';
+      } else {
+        fb.classList.remove('show', 'correct-fb', 'wrong-fb');
+      }
+
+      $('btn-prev').disabled = index === 0;
+      $('btn-next').disabled = index === state.questions.length - 1;
+      updateNavigator();
+      updateFlagButton();
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function selectOption(letter) {
+      state.answers[state.currentIndex] = letter;
+      updateNavigator();
+      if (state.mode === 'practice') {
+        showQuestion(state.currentIndex);
+      } else {
+        document.querySelectorAll('.option-row').forEach(el => {
+          el.classList.remove('selected');
+          if (el.querySelector('input')?.value === letter) el.classList.add('selected');
+        });
+      }
+    }
+
+    function toggleFlag() {
+      const i = state.currentIndex;
+      if (state.flagged[i]) delete state.flagged[i];
+      else state.flagged[i] = true;
+      updateNavigator();
+      updateFlagButton();
+    }
+
+    function finishQuiz() {
+      const unanswered = state.questions.length - Object.keys(state.answers).length;
+      const isL1 = state.quizType === 'cfa-l1';
+      const endLabel = isL1
+        ? (state.cfaSessionIndex === 0 ? 'Session 1' : 'Session 2')
+        : 'this exam';
+      let msg = `Are you sure you want to end ${endLabel}?`;
+      if (unanswered > 0) msg += `\n\n${unanswered} item(s) unanswered — these will be marked incorrect.`;
+      const flagged = Object.keys(state.flagged).length;
+      if (flagged > 0) msg += `\n\n${flagged} item(s) flagged for review.`;
+      if (!confirm(msg)) return;
+
+      recordQuestionTime();
+      clearInterval(state.timerInterval);
+
+      if (isL1 && state.cfaSessionIndex === 0) {
+        state.cfaSessionSnapshots.push({
+          ...snapshotCurrentSession(),
+          sessionLabel: CFA_LEVEL_I.sessions[0].label,
+        });
+        showBreakScreen();
+        return;
+      }
+
+      let results;
+      let totalTime;
+      if (isL1) {
+        state.cfaSessionSnapshots.push({
+          ...snapshotCurrentSession(),
+          sessionLabel: CFA_LEVEL_I.sessions[1].label,
+        });
+        results = combineCfaL1Results();
+        totalTime = state.cfaSessionSnapshots.reduce((s, snap) => s + snap.timeUsedSec, 0);
+      } else {
+        results = state.questions.map((q, i) => ({
+          ...q,
+          userAnswer: state.answers[i] ?? null,
+          correct: state.answers[i] === q.answer,
+          flagged: !!state.flagged[i],
+          timeSec: state.questionTimes[i] || 0,
+        }));
+        totalTime = Math.floor((Date.now() - state.sessionStart) / 1000);
+      }
+
+      const correct = results.filter(r => r.correct).length;
+      const total = results.length;
+      const pct = total ? Math.round((correct / total) * 100) : 0;
+
+      const topicStats = {};
+      results.forEach(r => {
+        if (!topicStats[r.topic]) topicStats[r.topic] = { correct: 0, total: 0 };
+        topicStats[r.topic].total++;
+        if (r.correct) topicStats[r.topic].correct++;
+      });
+
+      const historyMode = isL1 ? 'cfa-l1' : state.mode;
+      saveHistory({
+        date: new Date().toISOString(),
+        mode: historyMode,
+        score: pct,
+        correct,
+        total,
+        topics: state.selectedTopics,
+        totalTimeSec: totalTime,
+        topicStats,
+        timerExpired: state.timerExpired || state.cfaSessionSnapshots.some(s => s.timerExpired),
+        items: compactResultsForHistory(results),
+      });
+
+      renderResults(pct, correct, total, totalTime, topicStats, results, isL1);
+    }
+
+    function compactResultsForHistory(results) {
+      return results.map(r => ({
+        id: r.id,
+        userAnswer: r.userAnswer,
+        correct: r.correct,
+        flagged: !!r.flagged,
+        timeSec: r.timeSec || 0,
+        cfaSession: r.cfaSession || null,
+      }));
+    }
+
+    function reconstructResultsFromHistory(items) {
+      return items.map(item => {
+        const q = QUESTIONS.find(x => x.id === item.id);
+        if (!q) return null;
+        return { ...q, ...item };
+      }).filter(Boolean);
+    }
+
+    function openHistoryReview(index) {
+      const hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const entry = hist[index];
+      if (!entry) return;
+      if (!entry.items?.length) {
+        alert('Detailed review is not available for this session (completed before review saving was added).');
+        return;
+      }
+      const results = reconstructResultsFromHistory(entry.items);
+      if (!results.length) {
+        alert('Could not load review — the question bank may have changed since this session.');
+        return;
+      }
+      $('screen-setup').classList.add('hidden');
+      $('screen-quiz').classList.add('hidden');
+      $('screen-break').classList.add('hidden');
+      renderResults(
+        entry.score,
+        entry.correct,
+        entry.total,
+        entry.totalTimeSec,
+        entry.topicStats,
+        results,
+        entry.mode === 'cfa-l1',
+        entry.date
+      );
+    }
+
+    function renderResults(pct, correct, total, totalTime, topicStats, results, isL1 = false, historyDate = null) {
+      $('screen-quiz').classList.add('hidden');
+      $('screen-break').classList.add('hidden');
+      $('screen-results').classList.remove('hidden');
+
+      $('result-score').textContent = pct + '%';
+      $('result-score').style.color =
+        pct >= WEAK_THRESHOLD ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+      $('result-summary').textContent = `${correct} / ${total} correct`;
+      const sessionNote = isL1 ? ' · Level I full mock (2 sessions)' : '';
+      const viewedAt = historyDate
+        ? `Reviewing session from ${new Date(historyDate).toLocaleString()} · `
+        : '';
+      $('result-time-info').textContent =
+        `${viewedAt}Total session time: ${formatDuration(totalTime)}${sessionNote}` +
+        (!historyDate && (state.timerExpired || (state.cfaSessionSnapshots || []).some(s => s.timerExpired))
+          ? ' · Time limit was exceeded in at least one session'
+          : '');
+
+      const tr = $('topic-results');
+      tr.innerHTML = '';
+      const weak = [];
+      Object.entries(topicStats).sort((a, b) => a[0].localeCompare(b[0])).forEach(([topic, s]) => {
+        const p = Math.round((s.correct / s.total) * 100);
+        const isWeak = p < WEAK_THRESHOLD;
+        if (isWeak) weak.push({ topic, pct: p, correct: s.correct, total: s.total });
+
+        const row = document.createElement('div');
+        row.className = 'topic-row';
+        const color = p >= WEAK_THRESHOLD ? 'var(--success)' : p >= 50 ? 'var(--warning)' : 'var(--danger)';
+        row.innerHTML = `
+          <span class="topic-name">${topic}${isWeak ? '<span class="weak-tag">Focus</span>' : ''}</span>
+          <div class="topic-bar-wrap"><div class="topic-bar" style="width:${p}%;background:${color}"></div></div>
+          <span class="topic-pct">${p}%</span>
+        `;
+        tr.appendChild(row);
+      });
+
+      const wt = $('weak-topics');
+      if (weak.length) {
+        wt.innerHTML = `<p style="color:var(--danger);font-size:0.88rem;">
+          <strong>Topics to focus on</strong> (below ${WEAK_THRESHOLD}%):
+          ${weak.map(w => `${w.topic} (${w.pct}%)`).join(', ')}
+        </p>`;
+      } else {
+        wt.innerHTML = `<p style="color:var(--success);font-size:0.88rem;">All topics at or above ${WEAK_THRESHOLD}%.</p>`;
+      }
+
+      const rl = $('review-list');
+      rl.innerHTML = '';
+      results.forEach((r, i) => {
+        const div = document.createElement('div');
+        div.className = 'review-item ' + (r.correct ? 'correct-item' : 'wrong-item');
+        div.innerHTML = `
+          <h4>Item ${i + 1}${r.cfaSession ? ` · ${r.cfaSession}` : ''} · ${r.topic} · #${r.number}
+            ${r.flagged ? ' · <span style="color:var(--flag)">Flagged</span>' : ''}
+            <span style="font-weight:400;color:var(--muted);"> · ${formatDuration(r.timeSec)}</span>
+          </h4>
+          <p style="margin-bottom:8px;">${escapeHtml(r.question)}</p>
+          <p style="color:var(--muted);font-size:0.85rem;">
+            Your answer: <strong>${r.userAnswer ?? '—'}</strong>
+            · Correct: <strong>${r.answer}</strong>
+          </p>
+          ${r.explanation ? `<p style="color:var(--muted);font-size:0.82rem;margin-top:8px;">${escapeHtml(r.explanation)}</p>` : ''}
+        `;
+        rl.appendChild(div);
+      });
+
+      renderHistory();
+    }
+
+    function saveHistory(entry) {
+      const hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.unshift(entry);
+      if (hist.length > 25) hist.length = 25;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+    }
+
+    function renderHistory() {
+      const hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const hasClickable = hist.some(h => h.items?.length);
+      const rows = hist.map((h, i) => {
+        const modeLabel = h.mode === 'cfa-l1' ? 'L1 Mock' : (h.mode === 'exam' ? 'Exam' : 'Practice');
+        const topicLabel = h.mode === 'cfa-l1' ? 'Full L1' :
+          (h.topics.length === getTopics().length ? 'All' : h.topics.length + ' topics');
+        const clickable = h.items?.length ? 'clickable' : '';
+        const title = h.items?.length ? ' title="Click to open item review"' : ' title="Review not saved for this session"';
+        return `
+        <tr class="history-row ${clickable}" data-history-index="${i}"${title}>
+          <td>${new Date(h.date).toLocaleDateString()} ${new Date(h.date).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</td>
+          <td>${modeLabel}</td>
+          <td>${h.score}% (${h.correct}/${h.total})</td>
+          <td>${topicLabel}</td>
+          <td>${formatDuration(h.totalTimeSec)}</td>
+        </tr>`;
+      }).join('');
+
+      const empty = !hist.length;
+      ['history-empty', 'history-empty-results'].forEach(id => {
+        const el = $(id);
+        if (el) el.classList.toggle('hidden', !empty);
+      });
+      ['history-hint', 'history-hint-results'].forEach(id => {
+        const el = $(id);
+        if (el) el.classList.toggle('hidden', empty || !hasClickable);
+      });
+      ['history-table', 'history-table-results'].forEach(id => {
+        const el = $(id);
+        if (el) el.classList.toggle('hidden', empty);
+      });
+      if ($('history-body')) $('history-body').innerHTML = rows;
+      if ($('history-body-results')) $('history-body-results').innerHTML = rows;
+    }
+
+    function onHistoryTableClick(e) {
+      const row = e.target.closest('tr[data-history-index]');
+      if (!row || !row.classList.contains('clickable')) return;
+      openHistoryReview(parseInt(row.dataset.historyIndex, 10));
+    }
+
+    document.querySelectorAll('.quiz-type-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.quiz-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateSetupUI();
+      };
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      };
+    });
+
+    $('btn-select-all').onclick = () =>
+      document.querySelectorAll('#topics-grid input').forEach(c => c.checked = true);
+    $('btn-clear-all').onclick = () =>
+      document.querySelectorAll('#topics-grid input').forEach(c => c.checked = false);
+
+    $('btn-start').onclick = startCustomQuiz;
+    $('btn-start-l1').onclick = startCfaL1Mock;
+    $('btn-start-session-2').onclick = startCfaSession2;
+    $('btn-prev').onclick = () => { if (state.currentIndex > 0) showQuestion(state.currentIndex - 1); };
+    $('btn-next').onclick = () => {
+      if (state.currentIndex < state.questions.length - 1) showQuestion(state.currentIndex + 1);
+    };
+    $('btn-flag').onclick = toggleFlag;
+    $('btn-submit').onclick = finishQuiz;
+    $('btn-new-quiz').onclick = () => {
+      $('screen-results').classList.add('hidden');
+      $('screen-setup').classList.remove('hidden');
+    };
+    $('nav-toggle').onclick = () => $('exam-navigator').classList.toggle('open');
+    $('history-body').onclick = onHistoryTableClick;
+    $('history-body-results').onclick = onHistoryTableClick;
+
+    if (!QUESTIONS.length) {
+      $('header-subtitle').textContent = 'Loading question bank…';
+      $('btn-start').disabled = true;
+      $('btn-start-l1').disabled = true;
+    } else {
+      renderTopics();
+      renderMockSpecTable();
+      updateSetupUI();
+      const maxQ = QUESTIONS.length;
+      $('num-questions').max = maxQ;
+      $('num-questions').value = Math.min(20, maxQ);
+    }
+    renderHistory();
+  </script>
+</body>
+</html>
